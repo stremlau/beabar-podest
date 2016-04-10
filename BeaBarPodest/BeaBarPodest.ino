@@ -30,6 +30,12 @@ void setup () {
   FastLED.addLeds<NEOPIXEL, 12>(stripe, NUM_STRIPE);
   
   FastLED.setBrightness(255);
+
+  bootscreen();
+}
+
+void bootscreen() {
+  return;
 }
 
 
