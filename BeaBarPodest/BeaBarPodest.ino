@@ -35,32 +35,40 @@ void setup () {
 }
 
 void bootscreen() {
-  int names[][] = {
-    {14, 6, 8,  9,  0,  10, 10, 10, 10},
-    {11, 8, 6,  16, 4,  12, 12, 12, 12},
-    {0,  8, 4,  17, 0,  10, 3,  4,  12},
-    {9,  0, 12, 7,  15, 3,  3,  3,  3},
-    {2,  0, 12, 6,  10, 0,  0,  0,  0},
-    {2,  8, 4,  9,  4,  10, 13, 13, 13},
-    {5,  0, 1,  6,  0,  10, 10, 10, 10}
+  int names[][9] = {
+    {14, 6,  8,  9,  0,  10, 10, 10, 10},
+    {11, 8,  6,  16, 4,  12, 12, 12, 12},
+    {0,  8,  4,  17, 0,  10, 3,  4,  12},
+    {9,  0,  12, 7,  15, 13, 13, 13, 13},
+    {2,  0,  12, 6,  10, 0,  0,  0,  0},
+    {2,  8,  4,  9,  4,  10, 13, 13, 13},
+    {5,  0,  1,  6,  0,  10, 10, 10, 10},
+    {19, 20, 19, 20, 19, 20, 19, 20, 19}
   };
 
-  int ncolor[][] = {
-    {0, 0, 255},
-    {50, 200, 50},
-    {200, 0, 180},
-    {0, 255, 0},
-    {255, 0, 0},
-    {200, 200, 0},
-    {80, 80, 200}
-  };
+//  int ncolor[][3] = {
+//    {0, 0, 255},
+//    {50, 200, 50},
+//    {255, 0, 0},
+//    {0, 255, 0},
+//    {255, 0, 255},
+//    {200, 200, 0},
+//    {30, 30, 200}
+//  };
 
+  byte hueSize = 255 / 7;
   for (int e = 0; e < 9; e++) {
-    for (int i = 0; i < 7, i++) {
-      setBlockLetter(i, names[i][e], ncolor[i][0], ncolor[i][1], ncolor[i][2]);
-      FastLED.show();
-      delay(1000);
+    for (int i = 0; i < 7; i++) {
+//    setBlockLetter(i, names[i][e], ncolor[i][0], ncolor[i][1], ncolor[i][2]);
+      setBlockLetter(i, names[i][e], hueSize * i);
     }
+    for (int e = 0; e < 9; e++) {
+      for (int i = 7; i < 11; i++) {
+        setBlockLetter(i, names[8][e], 0);
+      }
+    }
+    FastLED.show();
+    delay(1000);
   }
 }
 
@@ -191,11 +199,11 @@ boolean letters[][25] = {
                           1, 0, 0, 0, 1,
                           1, 1, 1, 1, 0 },
 
-                        { 0, 1, 1, 1, 0,
-                          1, 0, 0, 0, 1,
+                        { 0, 1, 1, 1, 1,
                           1, 0, 0, 0, 0,
-                          1, 0, 0, 0, 1,
-                          0, 1, 1, 1, 0 },
+                          1, 0, 0, 0, 0,
+                          1, 0, 0, 0, 0,
+                          0, 1, 1, 1, 1 },
 
                         { 1, 1, 1, 1, 0,
                           1, 0, 0, 0, 1,
@@ -287,6 +295,18 @@ boolean letters[][25] = {
                           0, 1, 1, 1, 0,
                           1, 0, 0, 0, 1,
                           1, 0, 0, 0, 1 },
+
+                        { 0, 1, 0, 1, 0,
+                          1, 0, 1, 0, 1,
+                          1, 0, 0, 0, 1,
+                          0, 1, 0, 1, 0,
+                          0, 0, 1, 0, 0 },
+
+                        { 0, 0, 0, 0, 0,
+                          0, 0, 0, 0, 0,
+                          0, 0, 0, 0, 0,
+                          0, 0, 0, 0, 0,
+                          0, 0, 0, 0, 0 }
                         
                         };
 
@@ -299,14 +319,25 @@ void updateBlock(int dmx_start, int line, int led_start) {
   }
 }
 
-void setBlockLetter(int block, int letter, int r, int g, int b) {
+//void setBlockLetter(int block, int letter, int r, int g, int b) {
+//  int line = (block > 4);
+//  block = block % 5;
+//  
+//  for (int i = 0; i < NUM_BLOCK; i++) {
+//    int p = !((i / 5) % 2) ? block * NUM_BLOCK + i : block * NUM_BLOCK + (( i/ 5 + 1) * 5) - (i % 5 + 1); 
+//    blocks[line][p].r = r * letters[letter][i];
+//    blocks[line][p].g = g * letters[letter][i];
+//    blocks[line][p].b = b * letters[letter][i];
+//  }
+//}
+
+void setBlockLetter(int block, int letter, byte hue) {
   int line = (block > 4);
   block = block % 5;
   
   for (int i = 0; i < NUM_BLOCK; i++) {
-    blocks[line][block * NUM_BLOCK + i].r = r * letters[pattern][i];
-    blocks[line][block * NUM_BLOCK + i].g = g * letters[pattern][i];
-    blocks[line][block * NUM_BLOCK + i].b = b * letters[pattern][i];
+    int p = !((i / 5) % 2) ? block * NUM_BLOCK + i : block * NUM_BLOCK + (( i/ 5 + 1) * 5) - (i % 5 + 1); 
+    blocks[line][p] = CHSV(hue, 255, letters[letter][i] * 255);
   }
 }
 
