@@ -161,4 +161,15 @@ void updateBlock(int dmx_start, int line, int led_start) {
   }
 }
 
+void setBlockLetter(int block, int letter, int r, int g, int b) {
+  int line = (block > 4);
+  block = block % 5;
+  
+  for (int i = 0; i < NUM_BLOCK; i++) {
+    blocks[line][block * NUM_BLOCK + i].r = r * letters[pattern][i];
+    blocks[line][block * NUM_BLOCK + i].g = g * letters[pattern][i];
+    blocks[line][block * NUM_BLOCK + i].b = b * letters[pattern][i];
+  }
+}
+
 // End.
