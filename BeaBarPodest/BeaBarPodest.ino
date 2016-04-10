@@ -34,8 +34,8 @@ void setup () {
   bootscreen();
 }
 
-int bootscreen() {
-  return 0;
+void bootscreen() {
+  return;
 }
 
 
