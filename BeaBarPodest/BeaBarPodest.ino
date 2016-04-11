@@ -1,7 +1,7 @@
 #include "DMXSerial.h"
 #include "FastLED.h"
 
-#define NUM_STRIPE 182 //an der Kante
+#define NUM_STRIPE 181 //an der Kante
 #define NUM_BLOCK 25
 #define BLOCKS_PER_LINE 5
 
@@ -20,6 +20,9 @@ static uint8_t cylon_direction = 0;
 
 void setup () {
   //delay(3000);
+
+  Serial.begin(9600);
+  Serial.println("blubb");
   
   // init DMX
   DMXSerial.init(DMXReceiver);
@@ -36,29 +39,36 @@ void setup () {
 
 void bootscreen() {
   int names[][9] = {
-    {14, 6,  8,  9,  0,  10, 10, 10, 10},
+    {14, 6,  8,  9,  0,  10, 19, 19, 19},
     {18, 19, 18, 19, 18, 19, 18, 19, 18},
-    {11, 8,  6,  16, 4,  12, 12, 12, 12},
+    {11, 8,  6,  16, 4,  12, 19, 19, 19},
     {0,  8,  4,  17, 0,  10, 3,  4,  12},
-    {9,  0,  12, 7,  15, 13, 13, 13, 13},
+    {9,  0,  12, 7,  15, 13, 19, 19, 19},
     {18, 19, 18, 19, 18, 19, 18, 19, 18},
-    {2,  0,  12, 6,  10, 0,  0,  0,  0},
-    {2,  8,  4,  9,  4,  10, 13, 13, 13},
-    {5,  0,  1,  6,  0,  10, 10, 10, 10},
+    {2,  0,  12, 6,  10, 0,  19, 19, 19},
+    {2,  8,  4,  9,  4,  10, 13, 19, 19},
+    {5,  0,  1,  6,  0,  10, 19, 19, 19},
     {18, 19, 18, 19, 18, 19, 18, 19, 18}
   };
 
 int ncolor[] = {32, 0, 64, 96, 128, 0, 159, 191, 223, 0};
-
-  byte hueSize = 255 / 7;
       
   for (int e = 0; e < 9; e++) {
-    for (int i = 0; i < 10; i++) {
-//    setBlockLetter(i, names[i][e], ncolor[i][0], ncolor[i][1], ncolor[i][2]);
-      setBlockLetter(i, names[i][e], ncolor[i]);
+    for (int d = 0; d < 6; d++) {
+      for (int i = 0; i < 10; i++) {
+  //    setBlockLetter(i, names[i][e], ncolor[i][0], ncolor[i][1], ncolor[i][2]);
+        clearBlock(i);
+        setBlockLetter(i, names[i][e], ncolor[i], d);
+        if (e + 1 < 9) setBlockLetter(i, names[i][e + 1], ncolor[i], d - 6);
+      }
+
+      for (int i = 0; i < e * 20 + d * 3.333 + 1; i++) {
+        stripe[i] = CHSV(0,255,255);
+      }
+      
+      FastLED.show();
+      delay(400);
     }
-    FastLED.show();
-    delay(1000);
   }
 }
 
@@ -321,13 +331,31 @@ void updateBlock(int dmx_start, int line, int led_start) {
 //  }
 //}
 
-void setBlockLetter(int block, int letter, byte hue) {
+void clearBlock(int block) {
   int line = (block > 4);
   block = block % 5;
-  
+
   for (int i = 0; i < NUM_BLOCK; i++) {
-    int p = !((i / 5) % 2) ? block * NUM_BLOCK + i : block * NUM_BLOCK + (( i/ 5 + 1) * 5) - (i % 5 + 1); 
-    blocks[line][p] = CHSV(hue, 255, letters[letter][i] * 255);
+    blocks[line][block * NUM_BLOCK + i] = CRGB(0, 0, 0);
+  }
+}
+
+void setBlockLetter(int block, int letter, byte hue, int offset) {
+  int line = (block > 4);
+  block = block % 5;
+
+  for (int x = 0; x < 5; x++) {
+    for (int y = 0; y < 5; y++) {
+      int blockpos = !(x % 2) ? x * 5 + y : x * 5 + 4 - y;
+      blockpos += block * NUM_BLOCK;
+
+      int ny = y + offset;
+      if (ny >= 0 && ny < 5) {
+        int letterpos = x * 5 + ny;
+        blocks[line][blockpos] = CHSV(hue, 255, letters[letter][letterpos] * 255);
+      }
+      
+    }
   }
 }
 
