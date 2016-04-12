@@ -21,8 +21,8 @@ static uint8_t cylon_direction = 0;
 void setup () {
   //delay(3000);
 
-  Serial.begin(9600);
-  Serial.println("blubb");
+  //Serial.begin(9600);
+  //Serial.println("blubb");
   
   // init DMX
   DMXSerial.init(DMXReceiver);
@@ -39,16 +39,16 @@ void setup () {
 
 void bootscreen() {
   int names[][9] = {
-    {14, 6,  8,  9,  0,  10, 19, 19, 19},
-    {18, 19, 18, 19, 18, 19, 18, 19, 18},
-    {11, 8,  6,  16, 4,  12, 19, 19, 19},
-    {0,  8,  4,  17, 0,  10, 3,  4,  12},
-    {9,  0,  12, 7,  15, 13, 19, 19, 19},
-    {18, 19, 18, 19, 18, 19, 18, 19, 18},
-    {2,  0,  12, 6,  10, 0,  19, 19, 19},
-    {2,  8,  4,  9,  4,  10, 13, 19, 19},
-    {5,  0,  1,  6,  0,  10, 19, 19, 19},
-    {18, 19, 18, 19, 18, 19, 18, 19, 18}
+    {14, 6,  8,  9,  0,  10, 19, 19, 19},   //Tilman
+    {18, 19, 18, 19, 18, 19, 18, 19, 18},   //Herz
+    {11, 8,  6,  16, 4,  12, 19, 19, 19},   //Oliver
+    {0,  8,  4,  17, 0,  10, 3,  4,  12},   //Alexander
+    {9,  0,  12, 7,  15, 13, 19, 19, 19},   //Markus
+    {18, 19, 18, 19, 18, 19, 18, 19, 18},   //Herz
+    {2,  0,  12, 6,  10, 0,  19, 19, 19},   //Carina
+    {2,  8,  4,  9,  4,  10, 13, 19, 19},   //Clemens
+    {5,  0,  1,  6,  0,  10, 19, 19, 19},   //Fabian
+    {18, 19, 18, 19, 18, 19, 18, 19, 18}    //Herz 
   };
 
 int ncolor[] = {32, 0, 64, 96, 128, 0, 159, 191, 223, 0};
@@ -63,12 +63,31 @@ int ncolor[] = {32, 0, 64, 96, 128, 0, 159, 191, 223, 0};
       }
 
       for (int i = 0; i < e * 20 + d * 3.333 + 1; i++) {
-        stripe[i] = CHSV(0,255,255);
+        stripe[i] = CHSV(255 / 181 * i,255, 255);
       }
       
       FastLED.show();
-      delay(400);
+      delay(200);
     }
+  }
+
+  for (int x = 0; x < 49; x++) {
+    int value = random8();
+    
+    for (int i = 0; i < 181; i++) {
+      value += random8(0, 100) - 50;
+      stripe[i] = CHSV(value, 255, 255);
+    }
+     for (int i = 0; i < 25 * 5; i++) {
+      value += random8(0, 100) - 50;
+      blocks[0][i] = CHSV(value, 255, 255);
+    }
+     for (int i = 0; i < 25 * 5; i++) {
+      value += random8(0, 100) - 50;
+      blocks[1][i] = CHSV(value, 255, 255);
+    }
+    delay(80);
+    FastLED.show();
   }
 }
 
@@ -105,7 +124,6 @@ void loop() {
         for (int i = 103; i < NUM_STRIPE; i++) stripe[i].r = stripe[i].r * 0.6; //rot knapp 40% heller als beim langen
         break;
 
-      case 2:
       case 1:
         fadeall();
         if (cylon_direction == 0) {
@@ -122,11 +140,13 @@ void loop() {
         }
         break;
         
-      case 3:
+      case 2:
         startIndex = startIndex + 1;
         rainbow(startIndex);
         break;
+
     }
+    
     
     FastLED.show();
     delay(50);
@@ -315,7 +335,7 @@ void updateBlock(int dmx_start, int line, int led_start) {
   for (int i = 0; i < NUM_BLOCK; i++) {
     blocks[line][led_start + i].r = scale8(DMXSerial.read(dmx_start) * bits[e][i], block_max_brightness);
     blocks[line][led_start + i].g = scale8(DMXSerial.read(dmx_start + 1) * bits[e][i], block_max_brightness);
-    blocks[line][led_start + i].b = scale8( DMXSerial.read(dmx_start + 2) * bits[e][i], block_max_brightness);
+    blocks[line][led_start + i].b = scale8(DMXSerial.read(dmx_start + 2) * bits[e][i], block_max_brightness);
   }
 }
 
